@@ -1,0 +1,44 @@
+{
+  "name": "cuebone",
+  "description": "",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": "audiotheme/cuebone",
+  "homepage": "https://audiotheme.com/",
+  "author": "AudioTheme",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test/*.js --cov"
+  },
+  "devDependencies": {
+    "browserify-shim": "^3.8.12",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1",
+    "strictify": "^0.2.0",
+    "tap": "^5.7.0"
+  },
+  "browserify-shim": {
+    "backbone": {
+      "exports": "global:Backbone",
+      "depends": [
+        "jquery",
+        "underscore"
+      ]
+    },
+    "jquery": "global:jQuery",
+    "mediaelementjs": "global:mejs",
+    "underscore": "global:_"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim",
+      "strictify"
+    ]
+  },
+  "files": [
+    "browser",
+    "src"
+  ]
+}
