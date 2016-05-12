@@ -41,6 +41,7 @@ Player = Backbone.Model.extend({
 		this.isiOS = this.isiPhone || this.isiPad;
 
 		this.current = new Tracks();
+		this.media = new Backbone.Collection();
 		this.tracks = this.options.tracks || new Tracks([{}]);
 		delete this.options.tracks;
 
@@ -49,12 +50,13 @@ Player = Backbone.Model.extend({
 			this.fetchTracks();
 			this.on( 'change', this.save, this );
 			this.current.on( 'add change remove reset', this.save, this );
+			this.media.on( 'add change remove reset', this.save, this );
 			this.tracks.on( 'add remove reset', this.tracks.save, this.tracks );
 		}
 
-		this.listenTo( this.current, 'ended', this.onTrackEnded );
+		this.listenTo( this.media, 'ended', this.onTrackEnded );
 
-		// Reset the current track index when replacing tracks.
+		// Clear the current track index when replacing tracks.
 		this.listenTo( this.tracks, 'reset', this.onTracksReset );
 
 		this.fetch();
@@ -76,23 +78,24 @@ Player = Backbone.Model.extend({
 		this.pause();
 
 		if ( currentTrack ) {
-			currentTrack.set( 'status', 'error' === currentTrack.get( 'status') ? 'error' : 'paused' );
-			currentTrack.unload();
+			currentTrack.media.set( 'status', 'error' === currentTrack.get( 'status') ? 'error' : 'paused' );
+			currentTrack.media.unload();
 		}
 
 		// Update the current track.
 		this.set( 'status', 'loading' );
 		this.current.reset( track );
+		this.media.reset( track.media );
 
 		// Re-use the media element between tracks because Android and iOS won't
 		// play dynamically created media elements without user interaction.
-		track.media = this.mediaElement;
+		track.media.mediaElement = this.mediaElement;
 
-		track.load();
+		track.media.load();
 	},
 
 	mute: function() {
-		this.current.first().mute();
+		this.current.first().media.mute();
 		this.set( 'muted', true );
 		return this;
 	},
@@ -114,14 +117,14 @@ Player = Backbone.Model.extend({
 
 	pause: function() {
 		if ( this.current.length ) {
-			this.current.first().pause();
+			this.current.first().media.pause();
 		}
 		return this;
 	},
 
 	play: function() {
 		this.options.events.trigger( 'play', this );
-		this.current.first().play();
+		this.current.first().media.play();
 		return this;
 	},
 
@@ -134,7 +137,7 @@ Player = Backbone.Model.extend({
 	},
 
 	seekTo: function( time ) {
-		this.current.first().seekTo( time );
+		this.current.first().media.seekTo( time );
 		return this;
 	},
 
@@ -152,14 +155,14 @@ Player = Backbone.Model.extend({
 	},
 
 	setVolume: function( volume ) {
-		this.current.first().setVolume( volume );
+		this.current.first().media.setVolume( volume );
 		this.unmute();
 		this.set( 'volume', volume );
 		return this;
 	},
 
 	unmute: function() {
-		this.current.first().unmute();
+		this.current.first().media.unmute();
 		this.set( 'muted', false );
 		return this;
 	},
@@ -181,7 +184,7 @@ Player = Backbone.Model.extend({
 		}
 
 		this.setCurrentTrack ( attributes.currentTrackIndex );
-		this.seekTo( attributes.currentTime );
+		this.seekTo( attributes.current_time );
 
 		this.set({
 			loop: attributes.loop,
@@ -219,13 +222,13 @@ Player = Backbone.Model.extend({
 		}
 
 		data = this.toJSON();
-		data.currentTime = 0;
+		data.current_time = 0;
 		data.status = 'paused';
 
 		if ( this.current.length ) {
 			track = this.current.first();
-			data.currentTime = track.get( 'currentTime' );
-			data.status = track.get( 'status' );
+			data.current_time = track.media.get( 'current_time' );
+			data.status = track.media.get( 'status' );
 		}
 
 		localStorage.setItem( id, JSON.stringify( data ) );
