@@ -1,5 +1,6 @@
 .editorconfig
 .gitignore
 .jshintrc
-gruntfile.js
+banner.tpl
+Gruntfile.js
 preamble.tpl
