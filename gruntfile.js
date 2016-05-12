@@ -7,16 +7,6 @@ module.exports = function( grunt ) {
 		pkg: grunt.file.readJSON( 'package.json' ),
 		banner: grunt.file.read( 'banner.tpl' ),
 
-		jshint: {
-			options: {
-				jshintrc: '.jshintrc'
-			},
-			check: [
-				'Gruntfile.js',
-				'src/**/*.js'
-			]
-		},
-
 		browserify: {
 			options: {
 				banner: '<%= banner %>',
@@ -29,6 +19,16 @@ module.exports = function( grunt ) {
 					'browser/cuebone.js' : 'index.js'
 				}
 			}
+		},
+
+		jshint: {
+			options: {
+				jshintrc: '.jshintrc'
+			},
+			check: [
+				'Gruntfile.js',
+				'src/**/*.js'
+			]
 		},
 
 		uglify: {
